@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Manage File</title>
+</head>
+<body>
+
+<h1>Manage File</h1>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class="flashes">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+
+<p><strong>File ID:</strong> {{ file_id }}</p>
+
+<p><strong>File Path:</strong></p>
+<pre>{{ path }}</pre>
+
+<hr>
+
+<h3>Visibility</h3>
+
+<form method="GET" id="public_form" action="{{ url_for('make_public', file_id=file_id) }}">
+    <label>
+        <input type="checkbox" name="public" {% if file.public %}checked{% endif %}
+               onclick="document.getElementById('public_form').submit();">
+        Make Public
+    </label>
+</form>
+
+<form method="GET" id="private_form" action="{{ url_for('make_private', file_id=file_id) }}">
+    <label>
+        <input type="checkbox" name="private" {% if not file.public %}checked{% endif %}
+               onclick="document.getElementById('private_form').submit();">
+        Make Private
+    </label>
+</form>
+
+<hr>
+
+<p>
+    <a href="{{ url_for('delete', file_id=file_id) }}"
+       onclick="return confirm('Are you sure you want to delete this file?');">
+       Delete File
+    </a>
+</p>
+
+<hr>
+
+<p>
+    {% if file.is_encrypted %}
+        <strong>Status:</strong> Encrypted<br>
+        <a href="{{ url_for('decrypt_file', file_id=file_id) }}">Decrypt File</a>
+    {% else %}
+        <strong>Status:</strong> Not Encrypted<br>
+        <a href="{{ url_for('encrypt_file', file_id=file_id) }}">Encrypt File</a>
+    {% endif %}
+</p>
+
+<p>
+    <a href="{{ url_for('home') }}">Back to Home</a>
+</p>
+
+</body>
+</html>

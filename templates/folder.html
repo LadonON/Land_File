@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Folder - {{ foldername }}</title>
+</head>
+<body>
+
+<h2>Folder: /{{ foldername }}</h2>
+
+<p>
+    <a href="{{ url_for('home') }}">⬅ Back to Home</a>
+</p>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" style="padding: 10px; border: 1px solid; margin-bottom: 10px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<hr>
+
+<h3>Upload File to This Folder</h3>
+<form action="{{ url_for('folder_upload', foldername=foldername) }}" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <button type="submit">Upload</button>
+</form>
+
+<hr>
+
+<h2>Files in this folder</h2>
+
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Owner ID</th>
+            <th>File Name</th>
+            <th>Size</th>
+            <th>Time Uploaded</th>
+            <th>Download</th>
+            <th>Manage</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% if files %}
+        {% for f in files %}
+        <tr>
+            <td>{{ f.owner }}</td>
+            <td>{{ f.filename }}</td>
+            <td>{{ f.size }} bytes</td>
+            <td>{{ f.time_uploaded.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+                {% if not f.is_encrypted %}
+                    <a href="{{ url_for('download', file_id=f.id) }}">⬇ Download</a>
+                {% else %}
+                    <span style="color: red;">Encrypted</span>
+                {% endif %}
+            </td>
+            <td>
+                <form action="{{ url_for('manage', file_id=f.id) }}" method="GET" style="display:inline;">
+                    <button type="submit">Manage</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="6" style="text-align:center;">No files found in this folder.</td>
+        </tr>
+    {% endif %}
+    </tbody>
+</table>
+
+</body>
+</html>
