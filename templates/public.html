@@ -9,41 +9,50 @@
     />
   </head>
   <body>
-    <h2>Public Files</h2>
+    <div class="title">
+      <h1>Land</h1>
+      <span>Better than cloud</span>
+    </div>
+    <div class="menu">
+      <div id="user">
+        <h2>Public Files</h2>
+        <p>
+          <a href="{{ url_for('home') }}">⬅ Back to Home</a>
+        </p>
+      </div>
 
-    <p>
-      <a href="{{ url_for('home') }}">⬅ Back to Home</a>
-    </p>
-
-    <hr />
-
-    {% if files|length == 0 %}
-    <p>No public files available.</p>
-    {% else %}
-    <table border="1" cellpadding="6" cellspacing="0">
-      <thead>
-        <tr>
-          <th>File Name</th>
-          <th>Owner</th>
-          <th>Size (KB)</th>
-          <th>Uploaded</th>
-          <th>Download</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for file in files %}
-        <tr>
-          <td>{{ file.filename }}</td>
-          <td>{{ file.owner_user.username }}</td>
-          <td>{{ "%.2f"|format(file.size / 1024) }}</td>
-          <td>{{ file.time_uploaded.strftime('%Y-%m-%d %H:%M') }}</td>
-          <td>
-            <a href="{{ url_for('download', file_id=file.id) }}">Download</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% endif %}
+      <div>
+        {% if files|length == 0 %}
+        <p>No public files available.</p>
+        {% else %}
+        <table cellpadding="6" cellspacing="0">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Owner</th>
+              <th>Size (KB)</th>
+              <th>Uploaded</th>
+              <th>Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for file in files %}
+            <tr>
+              <td>{{ file.filename }}</td>
+              <td>{{ file.owner_user.username }}</td>
+              <td>{{ "%.2f"|format(file.size / 1024) }}</td>
+              <td>{{ file.time_uploaded.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>
+                <a href="{{ url_for('download', file_id=file.id) }}"
+                  >Download</a
+                >
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </div>
+    </div>
   </body>
 </html>

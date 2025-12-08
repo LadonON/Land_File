@@ -1,45 +1,51 @@
 <!DOCTYPE html>
-<html>  
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="d-flex vh-100 justify-content-center align-items-center">
-    <div>
-        <h1 class="text-center">Login</h1>
-        <form method="POST" class="d-flex flex-column gap-2">
-            <input
-             type="text" 
-             name="username"
-            placeholder="Username" 
-            required class="form-control"
-            />
-            <input 
-            type="password" 
-            name="password" 
-            placeholder="Password" 
-            required class="form-control"
-            />
-            <button 
-            type="submit" 
-            class="btn btn-primary">
-            Login
-          </button>
-        </form>
-        <a href="/register" class="d-block mt-2 text-center">Register</a>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="mt-3 list-unstyled text-center">
-              {% for category, message in messages %}
-                <li>{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css')}}"
+    />
+  </head>
+  <body>
+    <div class="title">
+      <h1>Land</h1>
+      <span>Better than cloud</span>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <div class="menu">
+      <div id="user">
+        <h2 class="text-center">Login</h2>
+        <a href="/register"><strong>or Register</strong></a>
+        <a href="{{ url_for('public_files') }}">View Public Files</a>
+      </div>
+      <div>
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %}
+        <div class="flashes" style="margin-bottom: 10px">
+          {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %} {% endwith %}
+        <form id="signing" method="POST">
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            required
+            class="form-control"
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
+            class="form-control"
+          />
+          <button id="button" type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+  </body>
 </html>

@@ -14,7 +14,7 @@
       <span>Better than cloud</span>
     </div>
 
-    <div class="menu">
+    <div class="menu" style="flex-direction: row">
       <div class="left">
         {% if current_user.is_authenticated %}
         <p>Hello, {{ current_user.username }}!</p>
