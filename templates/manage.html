@@ -1,72 +1,114 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Manage File</title>
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css')}}"
+    />
+  </head>
+  <body>
+    <div class="title">
+      <h1>Land</h1>
+      <span>Better than cloud</span>
+    </div>
+    <div class="menu">
+      <div id="user">
+        <h2>Manage File</h2>
+        <p>
+          <a href="{{ url_for('home') }}">Back to Home</a>
+        </p>
+      </div>
 
-<h1>Manage File</h1>
+      <div>
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %}
+        <div class="flashes">
+          {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %} {% endwith %}
 
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul class="flashes">
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
+        <p><strong>File ID:</strong> {{ file_id }}</p>
 
-<p><strong>File ID:</strong> {{ file_id }}</p>
+        <p><strong>File Path:</strong> {{ path }}</p>
+      </div>
+      <div>
+        <h3>Visibility</h3>
 
-<p><strong>File Path:</strong></p>
-<pre>{{ path }}</pre>
+        <form
+          method="GET"
+          id="public_form"
+          action="{{ url_for('make_public', file_id=file_id) }}"
+        >
+          <label>
+            <input
+              type="checkbox"
+              name="public"
+              {%
+              if
+              file.public
+              %}checked{%
+              endif
+              %}
+              onclick="document.getElementById('public_form').submit();"
+            />
+            Make Public
+          </label>
+        </form>
 
-<hr>
+        <form
+          method="GET"
+          id="private_form"
+          action="{{ url_for('make_private', file_id=file_id) }}"
+        >
+          <label>
+            <input
+              type="checkbox"
+              name="private"
+              {%
+              if
+              not
+              file.public
+              %}checked{%
+              endif
+              %}
+              onclick="document.getElementById('private_form').submit();"
+            />
+            Make Private
+          </label>
+        </form>
 
-<h3>Visibility</h3>
+        <hr />
 
-<form method="GET" id="public_form" action="{{ url_for('make_public', file_id=file_id) }}">
-    <label>
-        <input type="checkbox" name="public" {% if file.public %}checked{% endif %}
-               onclick="document.getElementById('public_form').submit();">
-        Make Public
-    </label>
-</form>
+        <p>
+          <a
+            id="button"
+            href="{{ url_for('delete', file_id=file_id) }}"
+            onclick="return confirm('Are you sure you want to delete this file?');"
+          >
+            Delete File
+          </a>
+        </p>
 
-<form method="GET" id="private_form" action="{{ url_for('make_private', file_id=file_id) }}">
-    <label>
-        <input type="checkbox" name="private" {% if not file.public %}checked{% endif %}
-               onclick="document.getElementById('private_form').submit();">
-        Make Private
-    </label>
-</form>
+        <hr />
 
-<hr>
-
-<p>
-    <a href="{{ url_for('delete', file_id=file_id) }}"
-       onclick="return confirm('Are you sure you want to delete this file?');">
-       Delete File
-    </a>
-</p>
-
-<hr>
-
-<p>
-    {% if file.is_encrypted %}
-        <strong>Status:</strong> Encrypted<br>
-        <a href="{{ url_for('decrypt_file', file_id=file_id) }}">Decrypt File</a>
-    {% else %}
-        <strong>Status:</strong> Not Encrypted<br>
-        <a href="{{ url_for('encrypt_file', file_id=file_id) }}">Encrypt File</a>
-    {% endif %}
-</p>
-
-<p>
-    <a href="{{ url_for('home') }}">Back to Home</a>
-</p>
-
-</body>
+        <p>
+          {% if file.is_encrypted %}
+          <strong>Status:</strong> Encrypted
+          <a id="button" href="{{ url_for('decrypt_file', file_id=file_id) }}"
+            >Decrypt File</a
+          >
+          {% else %}
+          <strong>Status:</strong> Not Encrypted
+          <a id="button" href="{{ url_for('encrypt_file', file_id=file_id) }}"
+            >Encrypt File</a
+          >
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </body>
 </html>

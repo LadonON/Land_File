@@ -1,31 +1,43 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Land</title>
-</head>
-<body>
-    <h1>Land: Better than cloud</h1>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css')}}"
+    />
+  </head>
+  <body>
+    <div class="title">
+      <h1>Land</h1>
+      <span>Better than cloud</span>
+    </div>
 
-    {% if current_user.is_authenticated %}
+    <div class="menu" style="flex-direction: row">
+      <div class="left">
+        {% if current_user.is_authenticated %}
         <p>Hello, {{ current_user.username }}!</p>
-        <p>
-            <a href="{{ url_for('home') }}">Go to Home</a><br>
-            <a href="{{ url_for('logout') }}">Logout</a>
+        <p id="buttons">
+          <a href="{{ url_for('home') }}">Go to Home</a>
+          <a href="{{ url_for('logout') }}">Logout</a>
         </p>
-    {% else %}
+        {% else %}
         <p>Please log in or register to continue:</p>
-        <p>
-            <a href="{{ url_for('login') }}">Login</a><br>
-            <a href="{{ url_for('register') }}">Register</a>
+        <p id="buttons">
+          <a href="{{ url_for('login') }}">Login</a>
+          <a href="{{ url_for('register') }}">Register</a>
         </p>
-    {% endif %}
-
-    <hr>
-
-    <p>Or check out public files:</p>
-    <p>
-        <a href="{{ url_for('public_files') }}">View Public Files</a>
-    </p>
-</body>
+        {% endif %}
+      </div>
+      <div class="right">
+        <p>Or check out public files:</p>
+        <p>
+          <a id="button" href="{{ url_for('public_files') }}"
+            >View Public Files</a
+          >
+        </p>
+      </div>
+    </div>
+  </body>
 </html>

@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Upload File</title>
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css')}}"
+    />
+  </head>
+  <body>
+    <h2>Upload a File</h2>
 
-<h2>Upload a File</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <ul>
+      {% for category, message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul>
-          {% for category, message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+    <form method="POST" enctype="multipart/form-data">
+      <label>Select a file:</label><br />
+      <input type="file" name="file" /><br /><br />
 
-<form method="POST" enctype="multipart/form-data">
-    <label>Select a file:</label><br>
-    <input type="file" name="file"><br><br>
+      <button type="submit">Upload</button>
+    </form>
 
-    <button type="submit">Upload</button>
-</form>
-
-<br>
-<a href="{{ url_for('home') }}">Back to Home</a>
-
-</body>
+    <br />
+    <a href="{{ url_for('home') }}">Back to Home</a>
+  </body>
 </html>
