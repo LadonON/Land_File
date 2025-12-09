@@ -1,6 +1,17 @@
+"""
+Landon Stone
+12/9/2025
+
+This week while working on my project, I learned a lot about how websites work behind the scenes
+It was hard for me to learn how to incorporate a sqlite database
+My friend Ricardo helped me this week on styling the html pages
+One word that would explain how I am feeling about this project would be "exhausted"
+I would add and admin page and ranks
+"""
 from flask import Flask, render_template, redirect, url_for, request, flash, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -35,13 +46,11 @@ else:
 
 #user SQL model
 class User(UserMixin, db.Model):
-    """Defines the User model for the database."""
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
 
 class File(db.Model): #File SQL model
-    """Defines the File model for the database."""
     id = db.Column(db.Integer, primary_key=True)
     owner = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     owner_user = db.relationship("User", backref="files")
@@ -56,14 +65,24 @@ class File(db.Model): #File SQL model
 
 
 @login_manager.user_loader
-def load_user(user_id): #loading users 
-    """Load user by ID."""
+def load_user(user_id): #loading users
+    """
+    args:
+        user_id:
+        user's id from the database
+    returns:
+        User in format <User #>
+    """
     return User.query.get(int(user_id)) #get users space in the user database
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():# login page
-    """Handle user login."""
+    """
+       args:
+       returns:
+           Html page for login visulizaytion
+       """
     if request.method == "POST":
         username = request.form.get("username") #get the inout and password from the form in login.html
         password = request.form.get("password")
@@ -79,14 +98,23 @@ def login():# login page
 @app.route("/logout")
 @login_required #logout
 def logout():
-    """Handle user logout."""
+    """
+       args:
+       returns:
+           A redirect to the login page
+       """
     logout_user()
     return redirect(url_for("login"))
 
 
 @app.route("/register", methods=["GET", "POST"]) #same thing as login
 def register():
-    """Handle user registration."""
+    """
+       args:
+
+       returns:
+           Html page for register visulization
+       """
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
@@ -98,14 +126,40 @@ def register():
         return redirect(url_for("login"))
     return render_template("register.html")
 
+def debug_console():
+    index = 0
+    folders = []
+    print("------DEBUG-------\n")
+    while index < len(list_folders("user_uploads")):
+        folders.append(list_folders("user_uploads")[index])
+        folders.insert(index, list_folders("user_uploads")[index])
+        print(list_folders("user_uploads")[index])
+        index += 1
+    print("------------------\n")
+
+
 
 def allowed_filetypes(filename):
-    """Check if the file type is allowed."""
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    """
+          args:
+            filename:
+                the full filename of an uploaded file
+
+          returns:
+              True or False depending on if the extension is allowed
+          """
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS #split the filename up and see if it's extension is allowed
 
 
 def user_folders(user_name):
-    """Create user folder if it doesn't exist."""
+    """
+          args:
+          user_name:
+            the name of the user in which the folder will be created
+
+          returns:
+
+          """
     #create the user's file to store uploads
     folder = os.path.join(app.config["UPLOAD_FOLDER"], str(user_name))
     if not os.path.exists(folder):
@@ -113,7 +167,14 @@ def user_folders(user_name):
 
 
 def list_files(dir):
-    """List all files in a directory."""
+    """
+          args:
+          dir:
+            the directory that contains user files
+
+          returns:
+              a list of all files in the directory
+          """
     #list all files in the user's directory
     found_files = []
     for root, _, files in os.walk(dir):
@@ -124,7 +185,14 @@ def list_files(dir):
 
 
 def list_folders(dir):
-    """List all folders in a directory."""
+    """
+          args:
+          dir:
+            the directory that contains user files/folders
+
+          returns:
+              Every folder foud in the directory in a list
+          """
     #list all folders in the user's directory
     found_folders = []
     for root, dirs, _ in os.walk(dir):
@@ -136,7 +204,15 @@ def list_folders(dir):
 @app.route("/manage/<int:file_id>")
 @login_required
 def manage(file_id):
-    file_record = File.query.get_or_404(file_id)
+    """
+          args:
+          file_id:
+          the id of the file to manage from the database
+
+          returns:
+              Html page for file management with the variables file and file_id sent to jinja
+          """
+    file_record = File.query.get_or_404(file_id) #get all the data about the file with the sepcific id
     if file_record.owner != current_user.id:
         flash("You do not have permisson to acsess this file", "danger")
         return redirect(url_for("home"))
@@ -145,10 +221,19 @@ def manage(file_id):
 
 @app.route("/manage/<int:file_id>/make_public")
 def make_public(file_id):
+    """
+          args:
+          file_id:
+          the id of the file to manage from the database
+
+          returns:
+              the redirect of the manage page with the variable file_id
+          """
     file_record = File.query.get_or_404(file_id)
     if file_record.owner != current_user.id:
         flash("You do not have acsess to use this file", "danger")
         return redirect(url_for("home"))
+    #Change the public flag to True (defualt false)
     file_record.public = True
     db.session.commit()
     flash("File is now public", "success")
@@ -156,7 +241,17 @@ def make_public(file_id):
 
 @app.route("/manage/<int:file_id>/make_private")
 def make_private(file_id):
+    """
+          args:
+          file_id:
+          the id of the file to manage from the database
+
+          returns:
+              redirect to manage after file is made private
+          """
+
     file_record = File.query.get_or_404(file_id)
+    #check file owner
     if file_record.owner != current_user.id:
         flash("You do not have acsess to use this file", "danger")
         return redirect(url_for("home"))
@@ -167,29 +262,50 @@ def make_private(file_id):
 
 @app.route("/public")
 def public_files():
-    public_files = File.query.filter(
+    """
+          args:
+
+          returns:
+              Html page that shows all files with the public flag
+          """
+    public_files = File.query.filter( #get every file that has both public and no is encrypted
     and_(
         File.public == True,
         File.is_encrypted == False
         )
     ).all()
-    return render_template("public.html", files=public_files)
+    return render_template("public.html", files=public_files) #show those files
 
 @app.route("/")
 def lander():
+    """
+          args:
+
+          returns:
+              Html page for the landing page
+          """
     return render_template("lander.html")
         
 @app.route("/manage/<int:file_id>/encrypt")
 def encrypt_file(file_id):
+    """
+          args:
+          file_id:
+          the id of the file to encrypt from the database
+
+          returns:
+              Return the redirect url for the manage file after encrypting and changinging the encrypted flag in the databsee
+          """
     file_record = File.query.get_or_404(file_id)
     if file_record.owner != current_user.id:
         flash("You do not have acsess to use this file", "danger")
         return redirect(url_for("home"))
-    input_file = os.path.join(app.config["UPLOAD_FOLDER"], *file_record.filepath.split("/"))
+    input_file = os.path.join(app.config["UPLOAD_FOLDER"], *file_record.filepath.split("/")) #unpack the filepath so it can be split into an absouluet path
     with open("secret.key", "rb") as f:
         key = f.read()
-    fernet = Fernet(key)
+    fernet = Fernet(key) #open fernet secret key
     try:
+        #encrypt if the file is not encrypted
         if not file_record.is_encrypted:
             with open(input_file, "rb") as f:
                 data = f.read()
@@ -202,13 +318,21 @@ def encrypt_file(file_id):
         else:
             flash("file is already encrypted", "error")
             return redirect(url_for("manage", file_id=file_id))
-    except Exception as e:
+    except Exception as e: #check for any exceptions and sprint it
         flash(f"Encryption failed! {e}", "danger")
     return redirect(url_for("manage", file_id=file_id))
 
 
 @app.route("/manage/<int:file_id>/decrypt")
-def decrypt_file(file_id):
+def decrypt_file(file_id): #same process as above
+    """
+              args:
+              file_id:
+              the id of the file to de decrypt from the database
+
+              returns:
+                  Return the redirect url for the manage file after decrypting and changinging the encrypted flag in the databsee
+              """
     file_record = File.query.get_or_404(file_id)
     
     if file_record.owner != current_user.id:
@@ -225,7 +349,7 @@ def decrypt_file(file_id):
             decrypt = fernet.decrypt(data)
             with open(input_file, "wb") as f:
                 f.write(decrypt)
-            file_record.is_encrypted = False
+            file_record.is_encrypted = False #only diffrence from above is that the encrypted is set to True
             db.session.commit()
             flash("Suscsfully decrpyted", "success")
         else:
@@ -239,7 +363,14 @@ def decrypt_file(file_id):
 @app.route("/download/<int:file_id>") #download files
 @login_required
 def download(file_id):
-    """Handle file download."""
+    """
+              args:
+              file_id:
+              the id of the file to download from the database
+
+              returns:
+                  Returns the url of a generated downlaod link from send_file
+              """
     file_record = File.query.get_or_404(file_id)
     public = file_record.public
     full = os.path.join(app.config["UPLOAD_FOLDER"], *file_record.filepath.split("/"))
@@ -248,11 +379,11 @@ def download(file_id):
             flash("You do not have permission to access this file", "danger")
             return redirect(url_for("home"))
         if file_record.is_encrypted:
-            flash("Cannot download encrypte files", "error")
+            flash("Cannot download encrypte files", "error") #only allow download of non encrypted files
         else:
-            return send_file(full, as_attachment=True)
+            return send_file(full, as_attachment=True) #download public files
     else:
-        return send_file(full, as_attachment=True)
+        return send_file(full, as_attachment=True) #download private files
 
 
 
@@ -261,18 +392,24 @@ def download(file_id):
 @app.route("/create_folder", methods=["POST"])
 @login_required
 def create_folder():
-    """Create a new folder for the user."""
+    """
+              args:
+
+
+              returns:
+                  returns the user home after folder creation
+              """
     folder_name = request.form.get("folder_name")
     if not folder_name:
         flash("Unnamed folders are not permitted")
         return redirect(url_for("home"))
     folder_name = secure_filename(folder_name)
-    user_direcctory = os.path.join(app.config["UPLOAD_FOLDER"], current_user.username)
-    new_path = os.path.join(user_direcctory, folder_name)
+    user_direcctory = os.path.join(app.config["UPLOAD_FOLDER"], current_user.username) #get where the new folder will be made
+    new_path = os.path.join(user_direcctory, folder_name) #the path that will be used
     try:
         os.makedirs(new_path)
         flash(f"Folder {folder_name} has been created!", "success")
-    except FileExistsError:
+    except FileExistsError: #check for other folders with the same name
         flash(f"Folder {folder_name} already exists!", "danger")
     return redirect(url_for("home"))
 
@@ -281,15 +418,23 @@ def create_folder():
 @app.route("/folder/<path:foldername>/upload", methods=["GET", "POST"])
 @login_required
 def folder_upload(foldername):
-    """Upload a file to a specific folder."""
+    """
+              args:
+              foldername:
+              the name of the folder to create
+
+              returns:
+                 Return the redirct view_files so the user can see the folder's contents
+                 (return redirect(request.url)Refreshes the page the user is on
+              """
     user_directory = os.path.join(app.config["UPLOAD_FOLDER"], current_user.username)
-    target_folder = os.path.join(user_directory, foldername)
+    target_folder = os.path.join(user_directory, foldername) #where the file will be uploaded i na specfif folder
     if not os.path.exists(target_folder):
         flash("Folder does not exist", "danger")
         return redirect(url_for("home"))
     if request.method == "POST":
-        if "file" not in request.files:
-            flash("No file part", "danger")
+        if "file" not in request.files: #check if the HTMl formactully sent a file
+            flash("No file part ", "danger")
             return redirect(request.url)
         file = request.files["file"]
         if file.filename == "":
@@ -299,7 +444,8 @@ def folder_upload(foldername):
             filename = secure_filename(file.filename)
             path = os.path.join(target_folder, filename)
             file.save(path)
-            rel_path = os.path.relpath(path, app.config["UPLOAD_FOLDER"]).replace("\\", "/")
+            rel_path = os.path.relpath(path, app.config["UPLOAD_FOLDER"]).replace("\\", "/") #create a relative path based on the absoulte one
+            #Create a new enetry in the File table with the new uploaded file in it
             upload_file = File(
                 owner=current_user.id,
                 filename=filename,
@@ -319,16 +465,23 @@ def folder_upload(foldername):
 @app.route("/folder/<path:foldername>")
 @login_required
 def view_folder(foldername):
-    """View contents of a specific folder."""
+    """
+              args:
+              foldername:
+              the name of the folder to show the contents of
+
+              returns:
+                 Return the redirect url for the folder page
+              """
     user_directory = os.path.join(app.config["UPLOAD_FOLDER"], current_user.username)
     target_folder = os.path.join(user_directory, foldername)
     if not os.path.exists(target_folder):
         flash("Folder does not exist", "danger")
         return redirect(url_for("home"))
-    rel_t = f"{current_user.username}/{foldername}"
+    rel_t = f"{current_user.username}/{foldername}" #get the relative filepath
     files_in_folder = File.query.filter(
     File.owner == current_user.id,
-    File.filepath.like(f"{rel_t}/%")
+    File.filepath.like(f"{rel_t}/%") #returns all files in a specific folder
     ).all()
     return render_template("folder.html", files=files_in_folder, foldername=foldername)
 
@@ -337,7 +490,14 @@ def view_folder(foldername):
 @app.route("/home")
 @login_required
 def home():
-    """Render the home page with user's files and folders."""
+    """
+              args:
+
+
+              returns:
+                  Returns the main home.html with the files and folders variables for jinja
+              """
+    #basic home setup like the users folders wr=orking dir and files
     usr_dir = os.path.join(app.config["UPLOAD_FOLDER"], current_user.username)
     user_folders(current_user.username)
     usr_files = File.query.filter_by(owner=current_user.id).all()
@@ -350,14 +510,22 @@ def home():
 @app.route("/delete/<int:file_id>", methods=["GET", "POST"])
 @login_required
 def delete(file_id):
+    """
+              args:
+              file_id:
+              the id of the file to delete from the database
+
+              returns:
+                  Return the redirect url for home page after file deletion
+              """
     file_record = File.query.get_or_404(file_id)
-    if file_record.owner != current_user.id:
+    if file_record.owner != current_user.id: #check for ownership
         flash("You do not have acses to this file", "danger")
         return redirect(url_for("home"))
     full_path = os.path.join(app.config["UPLOAD_FOLDER"], *file_record.filepath.split("/"))
     if os.path.exists(full_path):
         os.remove(full_path)
-
+    #remove the deleted file from the database
     db.session.delete(file_record)
     db.session.commit()
     flash("file deleted!", "success")
@@ -369,9 +537,17 @@ def delete(file_id):
 @app.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload_file():
-    """Handle file upload."""
+    """
+              args:
+
+
+              returns:
+                  Return the page upload form.
+                  Returns the user back to the page they were just on
+              """
     if request.method == "POST":
         if "file" not in request.files:
+            #if a file was incorrectly uploaded, refresh the page
             flash("No file part", "danger")
             return redirect(request.url)
         file = request.files["file"]
@@ -381,6 +557,7 @@ def upload_file():
         if file and allowed_filetypes(file.filename):
             user_folders(current_user.username)
             filename = secure_filename(file.filename)
+            #upload the fodler to the databse and commit
             upload_file = File(
                 owner=current_user.id,
                 filename=filename,
@@ -396,5 +573,6 @@ def upload_file():
 
 
 if __name__ == "__main__":
+    debug_console()
     app.run(debug=True)
 
