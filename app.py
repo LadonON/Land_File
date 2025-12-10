@@ -27,6 +27,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "wqdhouqwhdpoqdhwouncoup3297f"
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///users.db'
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.add_url_rule("/favicon.ico", endpoint="favicon", redirect_to="/static/favicon.ico")
 # Setup database
 db = SQLAlchemy(app)
 bycrypt = Bcrypt(app)
