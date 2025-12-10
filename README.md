@@ -1,11 +1,22 @@
+![image](https://drive.google.com/uc?export=download&id=1MNRZOoNTmsqrZP4tfQ3TbK-GpnCFldi3)
 # Land File
-#### Made By Landon Stone
+
+Better than cloud
 
 
-## Installation 
-Install dependencies:
-`  pip install -r requirements.txt`
 
+
+![PyPI - License](https://img.shields.io/pypi/l/orderman)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/LadonON/Land_File)
+
+## Installation
+
+Install dependencies with pip
+
+```bash
+  pip install -r requirements.txt
+```
+    
 ## Setup
 - Execute `setup_database.py` to create the SQLite database which is required for the app to run
 - Run `app.py`
