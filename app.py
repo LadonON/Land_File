@@ -221,6 +221,7 @@ def manage(file_id):
     return render_template("manage.html", file=file_record, file_id=file_id, path=full)
 
 @app.route("/manage/<int:file_id>/make_public")
+@login_required
 def make_public(file_id):
     """
           args:
@@ -241,6 +242,7 @@ def make_public(file_id):
     return redirect(url_for("manage", file_id=file_id))
 
 @app.route("/manage/<int:file_id>/make_private")
+@login_required
 def make_private(file_id):
     """
           args:
